@@ -1,16 +1,34 @@
+#include "HX711.h"
 // pins
 #define LIMIT_PIN 2
 #define STEP_PIN 12
 #define DIR_PIN 13
-#define BUTTON_PIN 10
+#define BUTTON_PIN 3
+#define DT_PIN 10
+#define SCK_PIN 9
+#define A_PIN 18
+#define B_PIN 17
+#define BRUSHED_DIR_PIN 7
+#define BRUSHED_PWM_PIN 6
 
+// sensor variables
 volatile bool limitTriggered = false;
 volatile bool buttonTriggered = false;
+volatile long encoderCount = 0;
+
+// loadcell variables
+HX711 loadCell;
+const long FORCE_THRESHOLD = 10000;
+long reading = 0;
 
 // stepper variables
-const unsigned long interval = 2000;
+const unsigned long interval = 250;
 unsigned long lastToggle = 0;
 bool stepHigh = false;
+
+// brushed variables
+const long TARGET_COUNT = 350;
+const int MOTOR_SPEED = 128;
 
 // states
 enum State {
@@ -27,23 +45,42 @@ State currentState = HOMING;
 // interrupt functions
 void limitISR() {
   limitTriggered = true;
+  // Serial.println(limitTriggered);
+
 }
 
 void buttonISR() {
   buttonTriggered = true;
 }
 
+void encoderISR() {
+  if(digitalRead(A_PIN) == digitalRead(B_PIN)) {
+    encoderCount++;
+  }
+  else {
+    encoderCount--;
+  }
+}
 
 void setup() {
   Serial.begin(9600);
 
   // SET PINS
   // sensor pins
-
   // limit pin
   pinMode(LIMIT_PIN, INPUT_PULLUP);
   // button pin
   pinMode(BUTTON_PIN, INPUT_PULLUP);
+  // loadcell pin
+  loadCell.begin(DT_PIN, SCK_PIN);
+
+  // wait until the load cell is ready and calibrate
+  if (loadCell.wait_ready_timeout(2000)) {
+    loadCell.tare(10);
+  } else {
+    Serial.println("Load cell not ready!");
+    // Keep the machine disabled until the sensor works.
+  }
 
   // motor pins
   // stepper pins
@@ -53,6 +90,14 @@ void setup() {
   digitalWrite(DIR_PIN, HIGH);
   digitalWrite(STEP_PIN, LOW);
 
+  // brushed pins
+  pinMode(A_PIN, INPUT_PULLUP);
+  pinMode(B_PIN, INPUT_PULLUP);
+  pinMode(BRUSHED_DIR_PIN, OUTPUT);
+  pinMode(BRUSHED_PWM_PIN, OUTPUT);
+
+  digitalWrite(BRUSHED_DIR_PIN, HIGH);
+  analogWrite(BRUSHED_PWM_PIN, 0);
 
 
   // ATTACH INTERRUPTS
@@ -61,13 +106,19 @@ void setup() {
   attachInterrupt(
     digitalPinToInterrupt(LIMIT_PIN),
     limitISR,
-    FALLING
+    RISING
   );
   // button interrupt
   attachInterrupt(
     digitalPinToInterrupt(BUTTON_PIN),
     buttonISR,
     FALLING
+  );
+  // encoder interrupt
+  attachInterrupt(
+    digitalPinToInterrupt(A_PIN),
+    encoderISR,
+    CHANGE
   );
 
 }
@@ -78,6 +129,7 @@ void loop() {
       if(CheckLimit()) {
         currentState = IDLE;
         StopStepper();
+        
       }
       else {
         RaiseStepper();
@@ -87,25 +139,62 @@ void loop() {
     case IDLE:
       if(CheckButton()) {
         currentState = LOWER;
-        Lower();
       }
       break;
     
     case LOWER:
+      
+      if(CheckLoad()){
+        currentState = ROTATE;
+        StopStepper();
+      }
+      else {
+        LowerStepper();
+      }
       break;
     
-    
+    case ROTATE:
+      if(CheckEncoderOver90()) {
+        currentState = VISION;
+        StopBrushed();
+        ResetEncoder();
+      }
+      else {
+        RotateBrushed();
+      }
+      break;
   }
-  
-
 }
 
 // event check functions
 bool CheckLimit() {
-  return limitTriggered || digitalRead(LIMIT_PIN) == LOW;
+  static unsigned long highSince = 0;
+  if (digitalRead(LIMIT_PIN) == HIGH) {
+    if (highSince == 0) {
+      highSince = millis();
+    }
+
+    return millis() - highSince >= 10;
+  }
+
+  highSince = 0;
+  return false;
 }
 bool CheckButton() {
   return buttonTriggered;
+}
+bool CheckLoad() {
+  if(loadCell.is_ready()){
+    reading = loadCell.get_value(1);
+    Serial.println(reading);
+  }
+  return reading > FORCE_THRESHOLD;
+}
+bool CheckEncoderOver90() {
+  noInterrupts();
+  long count = encoderCount;
+  interrupts();
+  return abs(count) >= TARGET_COUNT;
 }
 
 // service functions
@@ -125,7 +214,33 @@ void RaiseStepper() {
   }
 }
 
-void Lower() {
-  Serial.println("Lowering!");
+void LowerStepper() {
+  digitalWrite(DIR_PIN, LOW);
+
+  if (micros() - lastToggle >= interval) {
+    lastToggle = micros();
+
+    stepHigh = !stepHigh;
+    digitalWrite(STEP_PIN, stepHigh);
+  }
 }
 
+void StopBrushed() {
+  analogWrite(BRUSHED_PWM_PIN, 0);
+}
+
+void RotateBrushed() {
+  digitalWrite(BRUSHED_DIR_PIN, HIGH);
+  analogWrite(BRUSHED_PWM_PIN, MOTOR_SPEED);
+}
+
+void ResetEncoder() {
+  noInterrupts();
+  encoderCount = 0;
+  interrupts();
+}
+
+void StopAll() {
+  StopStepper();
+  StopBrushed();
+}
