@@ -10,6 +10,8 @@
 #define B_PIN 17
 #define BRUSHED_DIR_PIN 7
 #define BRUSHED_PWM_PIN 6
+#define GREEN_PIN 19
+#define RED_PIN 20
 
 // sensor variables
 volatile bool limitTriggered = false;
@@ -29,14 +31,19 @@ bool stepHigh = false;
 // brushed variables
 const long TARGET_COUNT = 350;
 const int MOTOR_SPEED = 128;
+int numRotations = 0;
+
+// LED variables
+int color_pin;
 
 // states
 enum State {
   HOMING,
   IDLE,
   LOWER,
+  VISION,
   ROTATE,
-  VISION
+  COLOR
 
 };
 
@@ -81,6 +88,13 @@ void setup() {
     Serial.println("Load cell not ready!");
     // Keep the machine disabled until the sensor works.
   }
+
+  // LEDs
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+
+  digitalWrite(RED_PIN, LOW);
+  digitalWrite(GREEN_PIN, LOW);
 
   // motor pins
   // stepper pins
@@ -129,6 +143,7 @@ void loop() {
       if(CheckLimit()) {
         currentState = IDLE;
         StopStepper();
+        ResetColors();
         
       }
       else {
@@ -139,30 +154,60 @@ void loop() {
     case IDLE:
       if(CheckButton()) {
         currentState = LOWER;
+        buttonTriggered = false;
       }
       break;
     
     case LOWER:
       
       if(CheckLoad()){
-        currentState = ROTATE;
+        currentState = VISION;
+        Serial.println("VISION");
         StopStepper();
       }
       else {
         LowerStepper();
       }
       break;
-    
+
+    case VISION:
+      
+      if(numRotations >= 4) {
+        currentState = COLOR;
+        numRotations = 0;
+        Serial.println("COLOR");
+        
+      }
+      else if(CheckVision()) {
+        currentState = ROTATE;
+        
+      }
+      break;
+
     case ROTATE:
       if(CheckEncoderOver90()) {
         currentState = VISION;
         StopBrushed();
         ResetEncoder();
+        numRotations++;
+        Serial.println("VISION");
+
+        
       }
       else {
         RotateBrushed();
       }
       break;
+    
+    case COLOR:
+      if(CheckColor()) {
+        SetColor();
+        currentState = HOMING;
+        ResetButton();
+      }
+      break;
+    
+    
   }
 }
 
@@ -186,15 +231,42 @@ bool CheckButton() {
 bool CheckLoad() {
   if(loadCell.is_ready()){
     reading = loadCell.get_value(1);
-    Serial.println(reading);
   }
   return reading > FORCE_THRESHOLD;
+}
+bool CheckVision() {
+  if (Serial.available() > 0) {
+    String command = Serial.readStringUntil('\n');
+    command.trim();
+
+    if (command == "ROTATE") {
+      return true;
+    }
+  }
+  return false;
 }
 bool CheckEncoderOver90() {
   noInterrupts();
   long count = encoderCount;
   interrupts();
   return abs(count) >= TARGET_COUNT;
+}
+bool CheckColor() {
+  if (Serial.available() > 0) {
+    String command = Serial.readStringUntil('\n');
+    command.trim();
+
+    if (command == "RED" || command == "GREEN") {
+      if (command == "RED") {
+        color_pin = RED_PIN;
+      }
+      else {
+        color_pin = GREEN_PIN;
+      }
+      return true;
+    }
+  }
+  return false;
 }
 
 // service functions
@@ -240,7 +312,20 @@ void ResetEncoder() {
   interrupts();
 }
 
+void SetColor() {
+  digitalWrite(color_pin, HIGH);
+}
+
 void StopAll() {
   StopStepper();
   StopBrushed();
+}
+
+void ResetButton() {
+  buttonTriggered = false;
+}
+
+void ResetColors(){
+  digitalWrite(RED_PIN, LOW);
+  digitalWrite(GREEN_PIN, LOW);
 }
