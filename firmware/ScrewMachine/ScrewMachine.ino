@@ -20,7 +20,7 @@ volatile long encoderCount = 0;
 
 // loadcell variables
 HX711 loadCell;
-const long FORCE_THRESHOLD = 10000;
+const long FORCE_THRESHOLD = 15000;
 long reading = 0;
 
 // stepper variables
@@ -84,6 +84,7 @@ void setup() {
   // wait until the load cell is ready and calibrate
   if (loadCell.wait_ready_timeout(2000)) {
     loadCell.tare(10);
+    Serial.println("load cell ready");
   } else {
     Serial.println("Load cell not ready!");
     // Keep the machine disabled until the sensor works.
