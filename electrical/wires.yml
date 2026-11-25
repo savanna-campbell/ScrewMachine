@@ -1,0 +1,308 @@
+# connections
+
+connectors:
+# power
+  PowerSupply:
+    pinlabels: ["12V_1", "GND_1", "12V_2", "GND_2"]
+
+# jetson orin nano 
+  JetsonOrinNano:
+    pinlabels: ["12V", GND, "CAM1", "USB"]
+
+# arduino
+  Arduino:
+    pinlabels: ["VCC", GND, "D2", "D12", "D13", "D3", 
+                "D10", "D9", "D18", "D17", "D7", "D6", 
+                "D19", "D20", "USB"]
+
+# breadboard
+  Breadboard:
+    type: Solderless breadboard
+    pinlabels: [
+      "5V", GND,
+      "D2", "D12", "D13", "D3",
+      "D10", "D9", "D18", "D17",
+      "D7", "D6", "D19", "D20"
+    ]
+
+# stepper motor driver
+  StepperDriver:
+    pinlabels: ["VMOT", "MOT_GND", "B2", "B1", "A1", "A2",
+                "ARD_GND", "DIR", "STEP", "SLEEP",
+                "RESET", "M0", "M1"]
+
+# stepper motor
+  StepperMotor:
+    pinlabels: ["A1", "A2", "B1", "B2"]
+
+# brushed driver
+  BrushedDriver:
+    pinlabels: ["DIR", "PWM", GND, "MA", "MB", "+", "-"]
+
+# brushed motor
+  BrushedMotor:
+    pinlabels: ["MOTOR+", "MOTOR-", GND, "VCC", 
+                "ENCA", "ENCB"]
+# delay
+  DelayRelay:
+    pinlabels: ["DC+", "DC-", "TRIG", "TRIG_GND", 
+                "COM", "NO"]
+
+# light 1
+  Light1:
+    pinlabels: ["12V", GND]
+
+# light 2
+  Light2:
+    pinlabels: ["12V", GND]
+
+# camera
+  Camera:
+    pinlabels: ["CSI"]
+
+# opto thing
+  Optocoupler:
+    pinlabels: ["MOT_POWER", "MOT_GND", 
+                "SIGNAL", "ARD_GND"]
+
+# strain gauge
+  StrainGauge:
+    pinlabels: ["E+", "E-", "A+", "A-"]
+
+# load cell amplifier
+  LoadCellAmplifier:
+    pinlabels: ["E+", "E-", "A-", "A+",
+                "VCC", GND, "DT", "SCK"]
+
+# limit switch
+  LimitSwitch:
+    pinlabels: ["NC", GND]
+
+# on/off button
+  OnOffButton:
+    pinlabels: ["SIGNAL", GND]
+
+# detect screw button
+  DetectButton:
+    pinlabels: ["SIGNAL", GND]
+
+  
+
+cables:
+  # arduino to breadboard
+  ArduinoToBreadboard:
+    category: bundle
+    gauge: 28 AWG 
+    length: 0.075
+    colors: [RD, BK, GN, YE, VT, BN, WH, OG, GY, GN,
+            YE, VT, BN, WH]
+
+  # stepper motor to driver
+  StepperToDriver:
+    category: bundle
+    gauge: 28 AWG 
+    length: 0.5
+    colors: [BU, RD, GN, BK]
+
+
+  # stepper driver to breadboard
+  StepperDriverToBreadboard:
+    category: bundle
+    gauge: 28 AWG 
+    length: 0.075
+    # order: "ARD_GND", "DIR", "STEP", "SLEEP", "RESET", "MO", "M1"
+    colors: [BK, BU, GN, RD, RD, RD, RD]
+
+  # stepper driver to power
+  StepperDriverToPower:
+    category: bundle
+    gauge: 22 AWG 
+    length: 0.3
+    colors: [RD, BK]
+
+  # brushed to breadboard
+  BrushedToBreadboard:
+    category: bundle
+    gauge: 22 AWG 
+    length: 0.5
+    colors: [GN, BU, YE, WH]
+
+  # brushed to driver
+  BrushedToDriver:
+    category: bundle
+    gauge: 22 AWG 
+    length: 0.5
+    colors: [RD, BK]
+
+  # brushed driver to power
+  BrushedDriverToPower:
+    category: bundle
+    gauge: 22 AWG 
+    length: 0.05
+    colors: [RD, BK]
+
+  # brushed driver to breadboard
+  BrushedDriverToBreadboard:
+    category: bundle
+    gauge: 28 AWG 
+    length: .3
+    colors: [BK, YE, WH]
+
+  # detect button to breadboard
+  DetectButtonToBreadboard:
+    category: bundle
+    gauge: 16 AWG 
+    length: 0.3
+    colors: [RD, BK]
+
+  # light1 to power
+  Light1ToPower:
+    category: bundle
+    gauge: 16 AWG 
+    length: 0.25
+    colors: [RD, BK]
+
+  # light2 to power
+  Light2ToPower:
+    category: bundle
+    gauge: 16 AWG 
+    length: 0.25
+    colors: [RD, BK]
+
+  # arduino to jetson
+  JetsonToArduino:
+    type: USB
+    wirecount: 1
+
+  # camera cable
+  CameraCable:
+    type: CSI ribbon cable
+    wirecount: 1
+
+  # breadboard to limitswitch
+  BreadboardToLimitSwitch:
+    category: bundle
+    gauge: 22 AWG 
+    length: 0.5
+    colors: [RD, BK]
+
+  # strain gauge to amplifier
+  StrainToAmplifier:
+    category: bundle
+    gauge: 22 AWG
+    length: 0.5
+    colors: [RD, BK, GN, WH]
+
+  # amplifier to breadboard
+  AmplifierToBreadboard:
+    category: bundle
+    gauge: 28 AWG 
+    length: 0.075
+    colors: [BN, OG, GN, RD]
+
+
+connections:
+  # arduino to breadboard
+  - 
+    - Arduino: ["VCC", GND, "D2", "D12", "D13", "D3", 
+                "D10", "D9", "D18", "D17", "D7", "D6", 
+                "D19", "D20"]
+    - ArduinoToBreadboard: [1, 2, 3, 4, 5, 6, 7, 8,
+                            9, 10, 11, 12, 13, 14]
+    - Breadboard: [
+                    "5V", "GND",
+                    "D2", "D12", "D13", "D3",
+                    "D10", "D9", "D18", "D17",
+                    "D7", "D6", "D19", "D20"
+                  ]
+
+  # stepper motor to driver
+  - 
+    - StepperMotor: ["A1", "A2", "B1", "B2"]
+    - StepperToDriver: [4, 3, 2, 1]
+    - StepperDriver: ["A2", "A1", "B1", "B2"]
+
+  
+  # stepper driver to breadboard
+  - 
+    - StepperDriver: ["ARD_GND", "DIR", "STEP", "SLEEP", "RESET",
+                      "M0", "M1"]
+    - StepperDriverToBreadboard: [1, 2, 3, 4, 5, 6, 7]
+    - Breadboard: [GND, "D13", "D12", "5V", "5V", "5V", "5V"]
+  
+  # stepper driver to power
+  - 
+    - StepperDriver: ["VMOT", "MOT_GND"]
+    - StepperDriverToPower: [1, 2]
+    - PowerSupply: ["12V_1", "GND_1"]
+
+  # brushed to breadboard
+  - 
+    - BrushedMotor: [GND, "VCC", "ENCA", "ENCB"]
+    - BrushedToBreadboard: [1, 2, 3, 4]
+    - Breadboard: [GND, "5V", "D18", "D17"]
+    
+  # brushed to driver
+  - 
+    - BrushedMotor: ["MOTOR+", "MOTOR-"]
+    - BrushedToDriver: [1, 2]
+    - BrushedDriver: ["MA", "MB"]
+  # brushed driver to power
+  - 
+    - BrushedDriver: ["+", "-"]
+    - BrushedDriverToPower: [1, 2]
+    - PowerSupply: ["12V_1", "GND_1"]
+  # brushed driver to breadboard
+  - 
+    - BrushedDriver: [GND, "DIR", "PWM"]
+    - BrushedDriverToBreadboard: [1, 2, 3]
+    - Breadboard: [GND, "D7", "D6"]
+
+  # detect button to breadboard
+  - 
+    - DetectButton: ["SIGNAL", GND]
+    - DetectButtonToBreadboard: [1, 2]
+    - Breadboard: ["D3", GND]
+
+  # light1 to power
+  - 
+    - Light1: ["12V", GND]
+    - Light1ToPower: [1, 2]
+    - PowerSupply: ["12V_1", "GND_1"]
+
+  # light2 to power
+  - 
+    - Light2: ["12V", GND]
+    - Light2ToPower: [1, 2]
+    - PowerSupply: ["12V_1", "GND_1"]
+
+  # arduino to jetson
+  - 
+    - Arduino: ["USB"]
+    - JetsonToArduino: [1]
+    - JetsonOrinNano: ["USB"]
+  # camera cable
+  - 
+    - JetsonOrinNano: ["CAM1"]
+    - CameraCable: [1]
+    - Camera: ["CSI"]
+  # breadboard to limitswitch
+  - 
+    - LimitSwitch: ["NC", GND]
+    - BreadboardToLimitSwitch: [1, 2]
+    - Breadboard: ["D2", GND]
+  # strain gauge to amplifier
+  - 
+    - StrainGauge: ["E+", "E-", "A+", "A-"]
+    - StrainToAmplifier: [1, 2, 3, 4]
+    - LoadCellAmplifier: ["E+", "E-", "A+", "A-"]
+    
+  # amplifier to breadboard
+  - 
+    - LoadCellAmplifier: ["VCC", GND, "DT", "SCK"]
+    - AmplifierToBreadboard: [4, 1, 2, 3]
+    - Breadboard: ["5V", GND, "D10", "D9"]
+
+ 
+
+    

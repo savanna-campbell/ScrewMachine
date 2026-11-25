@@ -1,0 +1,30 @@
+Id	Description	Qty	Unit	Designators
+1	Cable, CSI ribbon cable, 1 wires	0	m	CameraCable
+2	Cable, USB, 1 wires	0	m	JetsonToArduino
+3	Connector, 1 pins	1		Camera
+4	Connector, 13 pins	1		StepperDriver
+5	Connector, 15 pins	1		Arduino
+6	Connector, 2 pins	4		DetectButton, Light1, Light2, LimitSwitch
+7	Connector, 4 pins	4		JetsonOrinNano, PowerSupply, StepperMotor, StrainGauge
+8	Connector, 6 pins	1		BrushedMotor
+9	Connector, 7 pins	1		BrushedDriver
+10	Connector, 8 pins	1		LoadCellAmplifier
+11	Connector, Solderless breadboard, 14 pins	1		Breadboard
+12	Wire, 16 AWG, BK	0.8	m	DetectButtonToBreadboard, Light1ToPower, Light2ToPower
+13	Wire, 16 AWG, RD	0.8	m	DetectButtonToBreadboard, Light1ToPower, Light2ToPower
+14	Wire, 22 AWG, BK	1.85	m	BreadboardToLimitSwitch, BrushedDriverToPower, BrushedToDriver, StepperDriverToPower, StrainToAmplifier
+15	Wire, 22 AWG, BU	0.5	m	BrushedToBreadboard
+16	Wire, 22 AWG, GN	1	m	BrushedToBreadboard, StrainToAmplifier
+17	Wire, 22 AWG, RD	1.85	m	BreadboardToLimitSwitch, BrushedDriverToPower, BrushedToDriver, StepperDriverToPower, StrainToAmplifier
+18	Wire, 22 AWG, WH	1	m	BrushedToBreadboard, StrainToAmplifier
+19	Wire, 22 AWG, YE	0.5	m	BrushedToBreadboard
+20	Wire, 28 AWG, BK	0.95	m	ArduinoToBreadboard, BrushedDriverToBreadboard, StepperDriverToBreadboard, StepperToDriver
+21	Wire, 28 AWG, BN	0.225	m	AmplifierToBreadboard, ArduinoToBreadboard
+22	Wire, 28 AWG, BU	0.575	m	StepperDriverToBreadboard, StepperToDriver
+23	Wire, 28 AWG, GN	0.8	m	AmplifierToBreadboard, ArduinoToBreadboard, StepperDriverToBreadboard, StepperToDriver
+24	Wire, 28 AWG, GY	0.075	m	ArduinoToBreadboard
+25	Wire, 28 AWG, OG	0.15	m	AmplifierToBreadboard, ArduinoToBreadboard
+26	Wire, 28 AWG, RD	0.95	m	AmplifierToBreadboard, ArduinoToBreadboard, StepperDriverToBreadboard, StepperToDriver
+27	Wire, 28 AWG, VT	0.15	m	ArduinoToBreadboard
+28	Wire, 28 AWG, WH	0.45	m	ArduinoToBreadboard, BrushedDriverToBreadboard
+29	Wire, 28 AWG, YE	0.45	m	ArduinoToBreadboard, BrushedDriverToBreadboard
